@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>github.nskvortsov</groupId>
+  <artifactId>teamcity-cleanup-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <properties>
+    <kotlin.version>1.0.0</kotlin.version>
+    <teamcity-version>9.1.3</teamcity-version>
+  </properties>
+  <repositories>
+    <repository>
+      <id>JetBrains</id>
+      <url>http://repository.jetbrains.com/all</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>JetBrains</id>
+      <url>http://repository.jetbrains.com/all</url>
+    </pluginRepository>
+  </pluginRepositories>
+  <build>
+    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <version>${kotlin.version}</version>
+
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>process-sources</phase>
+            <goals> <goal>compile</goal> </goals>
+          </execution>
+
+          <execution>
+            <id>test-compile</id>
+            <phase>process-test-sources</phase>
+            <goals> <goal>test-compile</goal> </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jetbrains.teamcity</groupId>
+        <artifactId>teamcity-sdk-maven-plugin</artifactId>
+        <version>0.2</version>
+        <configuration>
+          <!-- <teamcityDir>/path/to/tc/distro</teamcityDir> -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <modules>
+    <module>teamcity-cleanup-plugin-server</module>
+    <module>teamcity-cleanup-plugin-agent</module>
+    <module>teamcity-cleanup-plugin-common</module>
+    <module>build</module>
+  </modules>
+</project>
