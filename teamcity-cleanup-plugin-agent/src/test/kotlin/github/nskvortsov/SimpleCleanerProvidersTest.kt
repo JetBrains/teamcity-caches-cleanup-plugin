@@ -31,14 +31,39 @@ class SimpleCleanerProvidersTest {
     @Test
     fun testMavenProvider() {
         val provider = MavenCacheCleanerProvider()
-        provider.registerDirectoryCleaners(context, registry)
-        assertThat(registryMap).containsKey(File("${System.getProperty("user.home")}/.m2/repository"))
+        val m2repo = File("${System.getProperty("user.home")}/.m2/repository")
+        assuringDirExists(m2repo) {
+            provider.registerDirectoryCleaners(context, registry)
+            assertThat(registryMap).containsKey(m2repo)
+        }
     }
 
     @Test
     fun testGradleProvider() {
         val provider = GradleCacheCleanerProvider()
-        provider.registerDirectoryCleaners(context, registry)
-        assertThat(registryMap).containsKey(File("${System.getProperty("user.home")}/.gradle/caches"))
+        val gradleCache = File("${System.getProperty("user.home")}/.gradle/caches")
+        assuringDirExists(gradleCache) {
+            provider.registerDirectoryCleaners(context, registry)
+            assertThat(registryMap).containsKey(gradleCache)
+        }
+    }
+
+    fun assuringDirExists(dir: File, f: () -> Unit): Unit {
+        if (dir.exists()) {
+            f();
+        } else {
+            dir.mkdirs()
+            try {
+                f();
+            } finally {
+                var child = dir
+                var parent = dir.parentFile
+                while (child.listFiles().size == 0) {
+                    child.delete()
+                    child = parent
+                    parent = child.parentFile
+                }
+            }
+        }
     }
 }
