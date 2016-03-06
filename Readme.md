@@ -10,7 +10,8 @@ These locations are known to grow very large over time, especially on long-livin
 
 
 # Build
-`mvn package`
+* CI status: <img src="https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:TeamCityPluginsByJetBrains_TeamcityCleanupPlugin_Build/statusIcon.svg"/>
+* To build locally, checkout and run `mvn package`
 
 # Install
 Just drop zip `target\teamcity-cleanup-plugin.zip` into `<TeamCity_data_dir>/plugins`
