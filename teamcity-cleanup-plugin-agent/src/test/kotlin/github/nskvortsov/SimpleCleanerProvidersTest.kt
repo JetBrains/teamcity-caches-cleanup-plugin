@@ -1,5 +1,7 @@
 package github.nskvortsov
 
+import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
+import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
