@@ -34,4 +34,10 @@ class SimpleCleanerProvidersTest {
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(File("${System.getProperty("user.home")}/.m2/repository"))
     }
+
+    fun testGradleProvider() {
+        val provider = GradleCacheCleanerProvider()
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(File("${System.getProperty("user.home")}/.gradle/caches"))
+    }
 }

@@ -39,14 +39,14 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
             return
         }
         System.getProperty("user.home")?.let {
-            val gradleCache = File(it + "/.gradle")
+            val gradleCache = File(it + "/.gradle/caches")
             if (gradleCache.exists()) {
                 registry.addCleaner(gradleCache, Date())
             }
         }
     }
 
-    override fun getCleanerName() = "Maven local cache cleaner"
+    override fun getCleanerName() = "Gradle local cache cleaner"
 }
 
 fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
