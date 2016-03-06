@@ -11,7 +11,6 @@ import java.io.File
 import java.util.*
 import kotlin.properties.Delegates
 
-@Test
 class SimpleCleanerProvidersTest {
 
     var registryMap: MutableMap<File, Date> by Delegates.notNull()
@@ -29,12 +28,14 @@ class SimpleCleanerProvidersTest {
         `when`(context.runningBuild).thenAnswer { runningBuild }
     }
 
+    @Test
     fun testMavenProvider() {
         val provider = MavenCacheCleanerProvider()
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(File("${System.getProperty("user.home")}/.m2/repository"))
     }
 
+    @Test
     fun testGradleProvider() {
         val provider = GradleCacheCleanerProvider()
         provider.registerDirectoryCleaners(context, registry)
