@@ -3,6 +3,7 @@ package github.nskvortsov.teamcity.cleanup
 import jetbrains.buildServer.agent.DirectoryCleanersProvider
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
+import org.apache.log4j.Logger
 import java.io.File
 import java.util.*
 
