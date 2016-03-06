@@ -10,7 +10,7 @@ These locations are known to grow very large over time, especially on long-livin
 
 
 # Build
-* CI status: <a href="https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityCleanupPlugin_Build?guest=1">
+* CI status: <a href="https://teamcity.jetbrains.com/viewType.html?buildTypeId=TeamCityPluginsByJetBrains_TeamcityCleanupPlugin_Build&guest=1">
   <img src="https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:TeamCityPluginsByJetBrains_TeamcityCleanupPlugin_Build/statusIcon.svg"/>
 </a>
 * To build locally, checkout and run `mvn package`
