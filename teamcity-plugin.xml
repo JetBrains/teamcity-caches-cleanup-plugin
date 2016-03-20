@@ -2,15 +2,15 @@
 <teamcity-plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:schemas-jetbrains-com:teamcity-plugin-v1-xml">
   <info>
     <name>caches-cleanup-plugin</name>
-    <display-name>caches-cleanup-plugin</display-name>
+    <display-name>Caches cleanup plugin</display-name>
     <version>@Version@</version>
-    <description>Plugin description</description>
-    <download-url>Plugin download URL</download-url>
+    <description>Clean up Maven and Gradle caches when build agent needs more space</description>
+    <download-url>https://teamcity.jetbrains.com/repository/download/TeamCityPluginsByJetBrains_TeamcityCleanupPlugin_Build/716855:id/teamcity-cleanup-plugin.zip</download-url>
     <email>Plugin author e-mail</email>
     <vendor>
-      <name>@VendorName@</name>
-      <url>@VendorURL@</url>
-      <logo>Plugin vendor logo URL</logo>
+      <name>Nikita Skvortsov</name>
+      <url>https://github.com/nskvortsov/caches-cleanup-plugin</url>
+      <logo></logo>
     </vendor>
   </info>
   <deployment use-separate-classloader="true" />

@@ -1,4 +1,4 @@
-TeamCity Agent Cleanup Plugin
+TeamCity Caches Cleanup Plugin
 =========================
 
 # About
