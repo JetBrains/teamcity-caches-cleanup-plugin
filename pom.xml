@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>github.nskvortsov</groupId>
-  <artifactId>teamcity-cleanup-plugin</artifactId>
+  <artifactId>caches-cleanup-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
@@ -63,9 +63,9 @@
     </plugins>
   </build>
   <modules>
-    <module>teamcity-cleanup-plugin-server</module>
-    <module>teamcity-cleanup-plugin-agent</module>
-    <module>teamcity-cleanup-plugin-common</module>
+    <module>caches-cleanup-plugin-server</module>
+    <module>caches-cleanup-plugin-agent</module>
+    <module>caches-cleanup-plugin-common</module>
     <module>build</module>
   </modules>
 </project>

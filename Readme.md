@@ -16,4 +16,4 @@ These locations are known to grow very large over time, especially on long-livin
 * To build locally, checkout and run `mvn package`
 
 # Install
-Just drop zip `target\teamcity-cleanup-plugin.zip` into `<TeamCity_data_dir>/plugins`
+Just drop zip `target\caches-cleanup-plugin.zip` into `<TeamCity_data_dir>/plugins`

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>teamcity-cleanup-plugin</artifactId>
+    <artifactId>caches-cleanup-plugin</artifactId>
     <groupId>github.nskvortsov</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
@@ -11,24 +11,24 @@
   <properties>
     <kotlin.version>1.0.0</kotlin.version>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-      <teamcity.teamcity-cleanup-plugin.plugin.version>snapshot-${maven.build.timestamp}</teamcity.teamcity-cleanup-plugin.plugin.version>
-      <teamcity.teamcity-cleanup-plugin.plugin.vendorName>Plugin vendor name</teamcity.teamcity-cleanup-plugin.plugin.vendorName>
-      <teamcity.teamcity-cleanup-plugin.plugin.vendorUrl>Plugin vendor URL</teamcity.teamcity-cleanup-plugin.plugin.vendorUrl>
+      <teamcity.caches-cleanup-plugin.plugin.version>snapshot-${maven.build.timestamp}</teamcity.caches-cleanup-plugin.plugin.version>
+      <teamcity.caches-cleanup-plugin.plugin.vendorName>Plugin vendor name</teamcity.caches-cleanup-plugin.plugin.vendorName>
+      <teamcity.caches-cleanup-plugin.plugin.vendorUrl>Plugin vendor URL</teamcity.caches-cleanup-plugin.plugin.vendorUrl>
   </properties>
   <dependencies>
       <dependency>
            <groupId>github.nskvortsov</groupId>
-           <artifactId>teamcity-cleanup-plugin-agent</artifactId>
+           <artifactId>caches-cleanup-plugin-agent</artifactId>
            <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
            <groupId>github.nskvortsov</groupId>
-           <artifactId>teamcity-cleanup-plugin-common</artifactId>
+           <artifactId>caches-cleanup-plugin-common</artifactId>
            <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
            <groupId>github.nskvortsov</groupId>
-           <artifactId>teamcity-cleanup-plugin-server</artifactId>
+           <artifactId>caches-cleanup-plugin-server</artifactId>
            <version>1.0-SNAPSHOT</version>
       </dependency>
     <dependency>
@@ -57,15 +57,15 @@
                 <replacements>
                     <replacement>
                         <token>@Version@</token>
-                        <value>${teamcity.teamcity-cleanup-plugin.plugin.version}</value>
+                        <value>${teamcity.caches-cleanup-plugin.plugin.version}</value>
                     </replacement>
                     <replacement>
                         <token>@VendorName@</token>
-                        <value>${teamcity.teamcity-cleanup-plugin.plugin.vendorName}</value>
+                        <value>${teamcity.caches-cleanup-plugin.plugin.vendorName}</value>
                     </replacement>
                     <replacement>
                         <token>@VendorURL@</token>
-                        <value>${teamcity.teamcity-cleanup-plugin.plugin.vendorUrl}</value>
+                        <value>${teamcity.caches-cleanup-plugin.plugin.vendorUrl}</value>
                     </replacement>
                 </replacements>                        
             </configuration>
@@ -81,7 +81,7 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
-                  <finalName>teamcity-cleanup-plugin-agent</finalName>
+                  <finalName>caches-cleanup-plugin-agent</finalName>
                   <appendAssemblyId>false</appendAssemblyId>
                   <descriptors>
                     <descriptor>plugin-agent-assembly.xml</descriptor>
@@ -95,7 +95,7 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
-                  <finalName>teamcity-cleanup-plugin</finalName>
+                  <finalName>caches-cleanup-plugin</finalName>
                   <outputDirectory>${project.parent.build.directory}</outputDirectory>
                   <appendAssemblyId>false</appendAssemblyId>
                   <descriptors>

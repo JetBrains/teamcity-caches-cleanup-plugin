@@ -7,7 +7,7 @@
     </formats>
     <files>
         <file>
-            <source>../teamcity-cleanup-plugin-agent/teamcity-plugin.xml</source>
+            <source>../caches-cleanup-plugin-agent/teamcity-plugin.xml</source>
             <outputDirectory>/</outputDirectory>
         </file>
     </files>
@@ -15,8 +15,8 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
-                <include>github.nskvortsov:teamcity-cleanup-plugin-agent</include>
-                <include>github.nskvortsov:teamcity-cleanup-plugin-common</include>
+                <include>github.nskvortsov:caches-cleanup-plugin-agent</include>
+                <include>github.nskvortsov:caches-cleanup-plugin-common</include>
             </includes>
             <binaries>
                 <outputDirectory>lib</outputDirectory>

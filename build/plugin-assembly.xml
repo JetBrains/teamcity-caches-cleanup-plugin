@@ -11,7 +11,7 @@
          <outputDirectory>/</outputDirectory>
      </file> 
      <file>
-         <source>target/teamcity-cleanup-plugin-agent.zip</source>
+         <source>target/caches-cleanup-plugin-agent.zip</source>
          <outputDirectory>agent</outputDirectory>
      </file> 
   </files>
@@ -19,8 +19,8 @@
     <moduleSet>
        <useAllReactorProjects>true</useAllReactorProjects>
        <includes>
-           <include>github.nskvortsov:teamcity-cleanup-plugin-server</include>
-           <include>github.nskvortsov:teamcity-cleanup-plugin-common</include>
+           <include>github.nskvortsov:caches-cleanup-plugin-server</include>
+           <include>github.nskvortsov:caches-cleanup-plugin-common</include>
        </includes> 
        <binaries>
            <outputDirectory>server</outputDirectory>
