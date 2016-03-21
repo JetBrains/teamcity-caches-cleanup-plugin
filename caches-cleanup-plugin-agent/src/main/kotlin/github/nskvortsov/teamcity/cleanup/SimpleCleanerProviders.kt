@@ -3,6 +3,7 @@ package github.nskvortsov.teamcity.cleanup
 import jetbrains.buildServer.agent.DirectoryCleanersProvider
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
+import jetbrains.buildServer.util.FileUtil
 import org.apache.log4j.Logger
 import java.io.File
 import java.util.*
@@ -17,10 +18,10 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
             log.info("Maven repository cleaner is disabled, skipping.")
             return
         }
-        System.getProperty("user.home")?.let {
-            val m2repo = File(it + "/.m2/repository")
+        System.getProperty("user.home")?.let { home ->
+            val m2repo = File("$home/.m2/repository")
             if (m2repo.exists()) {
-                registry.addCleaner(m2repo, Date())
+                registry.addCleaner(m2repo, Date(), Cleaner(m2repo, log))
             }
         }
     }
@@ -41,7 +42,7 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
         System.getProperty("user.home")?.let {
             val gradleCache = File(it + "/.gradle/caches")
             if (gradleCache.exists()) {
-                registry.addCleaner(gradleCache, Date())
+                registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
             }
         }
     }
@@ -54,4 +55,13 @@ fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     return strValue?.let { it.equals("false", ignoreCase = true) } ?: false
 }
 
-
+class Cleaner(val dir: File, val log:Logger): Runnable {
+    override fun run() {
+        val dirOld = File("$dir.old")
+        val movedSuccessfully = FileUtil.moveDirWithContent(dir, dirOld,
+                { log.info("Failed to rename to ${dirOld.name}: $it") })
+        if (movedSuccessfully) {
+            FileUtil.delete(dirOld)
+        }
+    }
+}
