@@ -13,6 +13,7 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
     var log = Logger.getLogger(MavenCacheCleanerProvider::class.java)
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
+        log.trace("Maven cache cleaner: register dir cleaners")
         val disabled = context.hasExplicitFalse("teamcity.cleaners.maven.enabled")
         if (disabled) {
             log.info("Maven repository cleaner is disabled, skipping.")
@@ -20,6 +21,7 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
         }
         System.getProperty("user.home")?.let { home ->
             val m2repo = File("$home/.m2/repository")
+            log.debug("Checking if [${m2repo.absolutePath}] exists")
             if (m2repo.exists()) {
                 registry.addCleaner(m2repo, Date(), Cleaner(m2repo, log))
             }
@@ -34,6 +36,7 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
     val log = Logger.getLogger(GradleCacheCleanerProvider::class.java)
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
+        log.trace("Gradle cache cleaner: register dir cleaners")
         val disabled = context.hasExplicitFalse("teamcity.cleaners.gradle.enabled")
         if (disabled) {
             log.info("Gradle cache cleaner is disabled, skipping")
@@ -41,6 +44,7 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
         }
         System.getProperty("user.home")?.let {
             val gradleCache = File(it + "/.gradle/caches")
+            log.debug("Checking if [${gradleCache.absolutePath}] exists")
             if (gradleCache.exists()) {
                 registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
             }
