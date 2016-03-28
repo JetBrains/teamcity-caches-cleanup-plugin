@@ -13,7 +13,7 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
     var log = Logger.getLogger(MavenCacheCleanerProvider::class.java)
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
-        log.trace("Maven cache cleaner: register dir cleaners")
+        log.debug("Maven cache cleaner: register dir cleaners")
         val disabled = context.hasExplicitFalse("teamcity.cleaners.maven.enabled")
         if (disabled) {
             log.info("Maven repository cleaner is disabled, skipping.")
@@ -23,6 +23,7 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
             val m2repo = File("$home/.m2/repository")
             log.debug("Checking if [${m2repo.absolutePath}] exists")
             if (m2repo.exists()) {
+                log.debug("Maven cache found, registering cleaner.")
                 registry.addCleaner(m2repo, Date(), Cleaner(m2repo, log))
             }
         }
@@ -36,7 +37,7 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
     val log = Logger.getLogger(GradleCacheCleanerProvider::class.java)
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
-        log.trace("Gradle cache cleaner: register dir cleaners")
+        log.debug("Gradle cache cleaner: register dir cleaners")
         val disabled = context.hasExplicitFalse("teamcity.cleaners.gradle.enabled")
         if (disabled) {
             log.info("Gradle cache cleaner is disabled, skipping")
@@ -46,6 +47,7 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
             val gradleCache = File(it + "/.gradle/caches")
             log.debug("Checking if [${gradleCache.absolutePath}] exists")
             if (gradleCache.exists()) {
+                log.debug("Gradle cache found, registering cleaner.")
                 registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
             }
         }
@@ -59,12 +61,14 @@ fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     return strValue?.let { it.equals("false", ignoreCase = true) } ?: false
 }
 
-class Cleaner(val dir: File, val log:Logger): Runnable {
+class Cleaner(val dir: File, val log: Logger): Runnable {
     override fun run() {
+        log.debug("Removing ${dir.absolutePath}")
         val dirOld = File("$dir.old")
         val movedSuccessfully = FileUtil.moveDirWithContent(dir, dirOld,
                 { log.info("Failed to rename to ${dirOld.name}: $it") })
         if (movedSuccessfully) {
+            log.debug("Rename successful, deleting ${dirOld.name}")
             FileUtil.delete(dirOld)
         }
     }
