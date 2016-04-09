@@ -6,4 +6,5 @@
        default-autowire="constructor">
   <bean class="github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider"/>
   <bean class="github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider"/>
+  <bean class="github.nskvortsov.teamcity.cache.PersistentCacheWithCleaners"/>
 </beans>
