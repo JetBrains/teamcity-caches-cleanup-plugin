@@ -1,6 +1,7 @@
 package github.nskvortsov
 
 import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
+import github.nskvortsov.teamcity.cleanup.GradleWrapperDistsCleanerProvider
 import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
@@ -53,7 +54,7 @@ class SimpleCleanerProvidersTest {
         val m2repo = File("${System.getProperty("user.home")}/.m2/repository")
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(m2repo)
-        registryMap.get(m2repo)?.run()
+        registryMap[m2repo]?.run()
         assertThat(m2repo).doesNotExist()
     }
 
@@ -63,7 +64,17 @@ class SimpleCleanerProvidersTest {
         val gradleCache = File("${System.getProperty("user.home")}/.gradle/caches")
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(gradleCache)
-        registryMap.get(gradleCache)?.run()
+        registryMap[gradleCache]?.run()
         assertThat(gradleCache).doesNotExist()
+    }
+
+    @Test
+    fun testGradleWrapperProvider() {
+        val provider = GradleWrapperDistsCleanerProvider()
+        val wrapperCache = File("${System.getProperty("user.home")}/.gradle/wrapper/dists")
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(wrapperCache)
+        registryMap[wrapperCache]?.run()
+        assertThat(wrapperCache).doesNotExist()
     }
 }
