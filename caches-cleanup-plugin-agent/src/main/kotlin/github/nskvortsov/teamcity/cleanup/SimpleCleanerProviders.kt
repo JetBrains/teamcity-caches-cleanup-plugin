@@ -37,10 +37,10 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
     val log = Logger.getLogger(GradleCacheCleanerProvider::class.java)
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
-        log.debug("Gradle cache cleaner: register dir cleaners")
+        log.debug("Gradle cleaner: register dir cleaners")
         val disabled = context.hasExplicitFalse("teamcity.cleaners.gradle.enabled")
         if (disabled) {
-            log.info("Gradle cache cleaner is disabled, skipping")
+            log.info("Gradle cleaner is disabled, skipping")
             return
         }
         System.getProperty("user.home")?.let {
@@ -50,37 +50,29 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
                 log.debug("Gradle cache found, registering cleaner.")
                 registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
             }
+
+            val wrapperCache = File(it + "/.gradle/wrapper/dists")
+            log.debug("Checking if [${wrapperCache.absolutePath}] exists")
+            if (wrapperCache.exists()) {
+                log.debug("Gradle wrapper distributions found, registering cleaner.")
+                registry.addCleaner(wrapperCache, Date(), Cleaner(wrapperCache, log))
+            }
+
+            val daemonLogs = File(it + "/.gradle/daemon")
+            log.debug("Looking for Gradle daemon logs.")
+            var count = 0
+            daemonLogs.walkTopDown().maxDepth(3).filter { it.name.endsWith("out.log") }.forEach {
+                registry.addCleaner(it, Date(it.lastModified()))
+                count++
+            }
+            log.debug("Finished, found and registered for cleaning $count files")
+
         }
     }
 
     override fun getCleanerName() = "Gradle local cache cleaner"
 }
 
-class GradleWrapperDistsCleanerProvider : DirectoryCleanersProvider {
-
-    val log = Logger.getLogger(GradleCacheCleanerProvider::class.java)
-    val name = "Gradle Wrapper dist cleaner"
-
-    override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
-
-        log.debug("$name: register cleaners")
-        val disabled = context.hasExplicitFalse("teamcity.cleaners.gradle.enabled")
-        if (disabled) {
-            log.info("$name disabled, skipping")
-            return
-        }
-        System.getProperty("user.home")?.let {
-            val wrapperCache = File(it + "/.gradle/wrapper/dists")
-            log.debug("Checking if [${wrapperCache.absolutePath}] exists")
-            if (wrapperCache.exists()) {
-                log.debug("$name: ${wrapperCache.name} found, registering cleaner.")
-                registry.addCleaner(wrapperCache, Date(), Cleaner(wrapperCache, log))
-            }
-        }
-    }
-
-    override fun getCleanerName() = name;
-}
 
 fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     val strValue = runningBuild.sharedConfigParameters[key]
