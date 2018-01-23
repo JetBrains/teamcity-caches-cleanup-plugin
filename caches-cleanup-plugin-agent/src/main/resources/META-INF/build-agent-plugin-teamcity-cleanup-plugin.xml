@@ -7,4 +7,6 @@
   <bean class="github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider"/>
   <bean class="github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider"/>
   <bean class="github.nskvortsov.teamcity.cache.PersistentCacheWithCleaners"/>
+  <bean class="github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider"/>
+  <bean class="github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider"/>
 </beans>

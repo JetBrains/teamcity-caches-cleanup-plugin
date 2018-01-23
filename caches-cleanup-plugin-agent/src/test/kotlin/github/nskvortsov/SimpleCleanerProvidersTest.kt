@@ -16,8 +16,10 @@
 
 package github.nskvortsov
 
+import github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
+import github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
@@ -102,5 +104,25 @@ class SimpleCleanerProvidersTest {
         assertThat(registryMap).containsKey(File(daemonLogs, "2.5/test.out.log"))
         assertThat(registryMap).containsKey(File(daemonLogs, "2.6/test.out.log"))
         assertThat(registryMap).doesNotContainKey(File(daemonLogs, "2.6/other.txt"))
+    }
+
+    @Test
+    fun testNPMProvider() {
+        val provider = NPMCacheCleanerProvider()
+        val repo = File("${System.getProperty("user.home")}/.npm")
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(repo)
+        registryMap[repo]?.run()
+        assertThat(repo).doesNotExist()
+    }
+
+    @Test
+    fun testApacheIvyProvider() {
+        val provider = ApacheIvyCacheCleanerProvider()
+        val repo = File("${System.getProperty("user.home")}/.ivy2/cache")
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(repo)
+        registryMap[repo]?.run()
+        assertThat(repo).doesNotExist()
     }
 }
