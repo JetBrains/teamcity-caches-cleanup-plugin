@@ -12,7 +12,7 @@ import kotlin.properties.Delegates
  * date: 09.04.2016.
  */
 
-class PersistentCacheWithCleaners(val agentDispatcher: EventDispatcher<AgentLifeCycleListener>) : DirectoryCleanersProvider {
+class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycleListener>) : DirectoryCleanersProvider {
     var cacheDirectory: File by Delegates.notNull()
 
     init {

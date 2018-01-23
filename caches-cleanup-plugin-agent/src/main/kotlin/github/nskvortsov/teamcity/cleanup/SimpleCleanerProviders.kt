@@ -76,10 +76,10 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
 
 fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     val strValue = runningBuild.sharedConfigParameters[key]
-    return strValue?.let { it.equals("false", ignoreCase = true) } ?: false
+    return strValue?.equals("false", ignoreCase = true) ?: false
 }
 
-class Cleaner(val dir: File, val log: Logger): Runnable {
+class Cleaner(private val dir: File, private val log: Logger): Runnable {
     override fun run() {
         log.debug("Removing ${dir.absolutePath}")
         val dirOld = File("$dir.old")

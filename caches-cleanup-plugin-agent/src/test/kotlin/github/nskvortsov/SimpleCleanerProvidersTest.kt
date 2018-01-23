@@ -28,7 +28,7 @@ class SimpleCleanerProvidersTest {
     @BeforeMethod
     fun setUp() {
         tempDir = FileUtil.createTempDirectory("test", "cleanup")
-        FileUtil.copyDir(File("src/test/resources/testData"), tempDir);
+        FileUtil.copyDir(File("src/test/resources/testData"), tempDir)
         oldHome = System.getProperty("user.home")
         System.setProperty("user.home", tempDir.absolutePath)
 
