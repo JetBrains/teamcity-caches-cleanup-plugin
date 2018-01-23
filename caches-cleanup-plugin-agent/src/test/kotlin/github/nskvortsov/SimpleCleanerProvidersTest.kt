@@ -16,6 +16,7 @@
 
 package github.nskvortsov
 
+import com.intellij.openapi.util.SystemInfo
 import github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
@@ -109,9 +110,18 @@ class SimpleCleanerProvidersTest {
     @Test
     fun testNPMProvider() {
         val provider = NPMCacheCleanerProvider()
-        val repo = File("${System.getProperty("user.home")}/.npm")
+        val repo =
+                if (SystemInfo.isWindows) File(System.getenv("APPDATA"), "npm-cache")
+                else File("${System.getProperty("user.home")}/.npm")
+
+        val created = SystemInfo.isWindows && !repo.exists() && repo.mkdirs()
+
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(repo)
+
+        // Do not clean on Windows as it's actual directory
+        if (!created) return
+
         registryMap[repo]?.run()
         assertThat(repo).doesNotExist()
     }
