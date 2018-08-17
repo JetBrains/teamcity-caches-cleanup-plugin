@@ -31,12 +31,24 @@ import kotlin.properties.Delegates
 class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycleListener>) : DirectoryCleanersProvider {
     var cacheDirectory: File by Delegates.notNull()
 
+    companion object {
+        private const val ArtifactRestrictorWhitelistProperty = "teamcity.artifactDependenciesResolution.whiteList"
+    }
+
     init {
         agentDispatcher.addListener(object: AgentLifeCycleAdapter() {
             override fun agentInitialized(agent: BuildAgent) {
-                cacheDirectory = agent.configuration.getCacheDirectory(".persistent_cache")
+                val configuration = agent.configuration
+
+                cacheDirectory = configuration.getCacheDirectory(".persistent_cache")
                 FileUtil.createDir(cacheDirectory)
-                agent.configuration.addSystemProperty("agent.persistent.cache", cacheDirectory.absolutePath)
+
+                configuration.addSystemProperty("agent.persistent.cache", cacheDirectory.absolutePath)
+                // Ensure it's possible to download artifact dependencies into persistent cache
+                // Restrictor introduced in TeamCity 2018.1
+                configuration.addConfigurationParameter(ArtifactRestrictorWhitelistProperty,
+                        configuration.configurationParameters.getOrDefault(ArtifactRestrictorWhitelistProperty, "")
+                                + ";%agent.persistent.cache%")
             }
         })
     }
