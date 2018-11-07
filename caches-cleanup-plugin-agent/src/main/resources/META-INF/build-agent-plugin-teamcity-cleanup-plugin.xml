@@ -9,4 +9,5 @@
   <bean class="github.nskvortsov.teamcity.cache.PersistentCacheWithCleaners"/>
   <bean class="github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider"/>
   <bean class="github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider"/>
+  <bean class="github.nskvortsov.teamcity.cleanup.ConfigurableCachesCleanerProvider"/>
 </beans>

@@ -7,7 +7,8 @@ TeamCity Caches Cleanup Plugin
 A simple plugin, that helps to get free space for builds by deleting:
  * `~/.m2/repository`
  * `~/.gradle/caches` 
- * `~/.npm` (on Posix) or `%AppData%/npm-cache` (on Windows) 
+ * `~/.npm` (on Posix) or `%AppData%/npm-cache` (on Windows)
+ * arbitrary directories defined in `teamcity.cleaners.configurable.directories` property (comma-separated, `~/` replaced with home directory)  
  * or `~/.ivy2/cache`
 
 folders. These locations are known to grow very large over time, especially on long-living build agent.
