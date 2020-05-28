@@ -24,11 +24,4 @@
   </parent>
   <artifactId>caches-cleanup-plugin-common</artifactId>
   <packaging>jar</packaging>
-  <dependencies>
-    <dependency>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-stdlib</artifactId>
-        <version>${kotlin.version}</version>
-    </dependency>
-  </dependencies>
 </project>

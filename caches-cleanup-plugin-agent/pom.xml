@@ -25,6 +25,11 @@
   <artifactId>caches-cleanup-plugin-agent</artifactId>
   <packaging>jar</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>github.nskvortsov</groupId>
