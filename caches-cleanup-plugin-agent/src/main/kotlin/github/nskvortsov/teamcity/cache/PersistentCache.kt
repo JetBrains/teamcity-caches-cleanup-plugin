@@ -21,7 +21,6 @@ import jetbrains.buildServer.util.EventDispatcher
 import jetbrains.buildServer.util.FileUtil
 import java.io.File
 import java.util.*
-import kotlin.properties.Delegates
 
 /**
  * Created by Nikita.Skvortsov
@@ -29,7 +28,7 @@ import kotlin.properties.Delegates
  */
 
 class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycleListener>) : DirectoryCleanersProvider {
-    var cacheDirectory: File by Delegates.notNull()
+    lateinit var cacheDirectory: File
 
     companion object {
         private const val ArtifactRestrictorWhitelistProperty = "teamcity.artifactDependenciesResolution.whiteList"

@@ -34,16 +34,15 @@ import org.testng.annotations.Test
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.properties.Delegates
 
 class SimpleCleanerProvidersTest {
 
-    var registryMap: MutableMap<File, Runnable> by Delegates.notNull()
-    var context: DirectoryCleanersProviderContext by Delegates.notNull()
-    var registry: DirectoryCleanersRegistry by Delegates.notNull()
-    var runningBuild: AgentRunningBuild by Delegates.notNull()
+    lateinit var registryMap: MutableMap<File, Runnable>
+    lateinit var context: DirectoryCleanersProviderContext
+    lateinit var registry: DirectoryCleanersRegistry
+    lateinit var runningBuild: AgentRunningBuild
 
-    var tempDir: File by Delegates.notNull()
+    lateinit var tempDir: File
     var oldHome: String? = null
 
     @BeforeMethod
@@ -65,7 +64,7 @@ class SimpleCleanerProvidersTest {
 
     @AfterMethod
     fun tearDown() {
-        System.setProperty("user.home", oldHome)
+        oldHome?.let { System.setProperty("user.home", it) }
         FileUtil.delete(tempDir)
     }
 
