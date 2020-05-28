@@ -20,9 +20,11 @@ import jetbrains.buildServer.agent.DirectoryCleanersProvider
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
 import jetbrains.buildServer.util.FileUtil
+import jetbrains.buildServer.util.TimeService
 import org.apache.log4j.Logger
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MavenCacheCleanerProvider : DirectoryCleanersProvider {
 
@@ -48,7 +50,7 @@ class MavenCacheCleanerProvider : DirectoryCleanersProvider {
     override fun getCleanerName() = "Maven local cache cleaner"
 }
 
-class GradleCacheCleanerProvider : DirectoryCleanersProvider {
+class GradleCacheCleanerProvider(private val TimeService: TimeService) : DirectoryCleanersProvider {
 
     val log = Logger.getLogger(GradleCacheCleanerProvider::class.java)
 
@@ -77,16 +79,80 @@ class GradleCacheCleanerProvider : DirectoryCleanersProvider {
             val daemonLogs = File(it + "/.gradle/daemon")
             log.debug("Looking for Gradle daemon logs.")
             var count = 0
-            daemonLogs.walkTopDown().maxDepth(3).filter { it.name.endsWith("out.log") }.forEach {
-                registry.addCleaner(it, Date(it.lastModified()))
-                count++
+
+            val now = TimeService.now()
+
+            (daemonLogs.listFiles() ?: emptyArray()).filter { dir -> dir.isDirectory }.forEach { dir ->
+                val isLogFile: (File) -> Boolean = { file -> file.name.endsWith("out.log") }
+                val logs = (dir.listFiles() ?: emptyArray()).filter(isLogFile)
+
+                // Let's split logs and register several cleaners:
+                //  * older than 7 days
+                //  * older than 1 day
+                //  * older than 12 hours
+                //  * each one else as separate cleaner
+                val groups = splitLogFiles(logs, now)
+
+                @Suppress("NAME_SHADOWING")
+                for ((type, logs) in groups.entries) {
+                    if (type == LogAge.FRESH) {
+                        // register each file separately
+                        logs.forEach { log ->
+                            registry.addCleaner(log, Date(log.lastModified()), LogFileCleaner(log, dir))
+                        }
+                    } else {
+                        // register group
+                        registry.addCleaner(dir, Date(now - type.millis), LogGroupCleaner(logs, dir))
+                    }
+                }
+                if (groups.isNotEmpty()) {
+                    count++
+                }
             }
-            log.debug("Finished, found and registered for cleaning $count files")
+            log.debug("Finished, found and registered for cleaning $count daemon directories")
 
         }
     }
 
     override fun getCleanerName() = "Gradle local cache cleaner"
+}
+
+private enum class LogAge(private val offset: Long) {
+    OLDER_THAN_7D(7 * 24),
+    OLDER_THAN_24H(24),
+    OLDER_THAN_12H(12),
+    FRESH(0);
+
+    val millis: Long
+        get() {
+            return TimeUnit.HOURS.toMillis(offset)
+        }
+}
+
+private fun splitLogFiles(logs: List<File>, now: Long): Map<LogAge, List<File>> {
+    return logs.groupBy {
+        val diff = now - it.lastModified()
+        LogAge.values().firstOrNull { age -> diff > age.millis } ?: LogAge.FRESH
+    }
+}
+
+private class LogGroupCleaner(private val logs: List<File>, private val dir: File) : Runnable {
+    override fun run() {
+        FileUtil.deleteFiles(logs)
+        if (dir.list()?.isEmpty() == true) {
+            FileUtil.delete(dir)
+        }
+    }
+
+}
+
+private class LogFileCleaner(private val log: File, private val dir: File) : Runnable {
+    override fun run() {
+        FileUtil.delete(log)
+        if (dir.list()?.isEmpty() == true) {
+            FileUtil.delete(dir)
+        }
+    }
 }
 
 
@@ -95,7 +161,7 @@ fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     return strValue?.equals("false", ignoreCase = true) ?: false
 }
 
-class Cleaner(private val dir: File, private val log: Logger): Runnable {
+class Cleaner(private val dir: File, private val log: Logger) : Runnable {
     override fun run() {
         log.debug("Removing ${dir.absolutePath}")
         val dirOld = File("$dir.old")

@@ -25,6 +25,7 @@ import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
 import jetbrains.buildServer.util.FileUtil
+import jetbrains.buildServer.util.SystemTimeService
 import org.assertj.core.api.Assertions.assertThat
 import org.mockito.Mockito.*
 import org.testng.annotations.AfterMethod
@@ -32,6 +33,7 @@ import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 class SimpleCleanerProvidersTest {
@@ -79,7 +81,7 @@ class SimpleCleanerProvidersTest {
 
     @Test
     fun testGradleProvider() {
-        val provider = GradleCacheCleanerProvider()
+        val provider = GradleCacheCleanerProvider(SystemTimeService())
         val gradleCache = File("${System.getProperty("user.home")}/.gradle/caches")
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(gradleCache)
@@ -89,7 +91,7 @@ class SimpleCleanerProvidersTest {
 
     @Test
     fun testGradleWrapperProvider() {
-        val provider = GradleCacheCleanerProvider()
+        val provider = GradleCacheCleanerProvider(SystemTimeService())
         val wrapperCache = File("${System.getProperty("user.home")}/.gradle/wrapper/dists")
         provider.registerDirectoryCleaners(context, registry)
         assertThat(registryMap).containsKey(wrapperCache)
@@ -99,12 +101,24 @@ class SimpleCleanerProvidersTest {
 
     @Test
     fun testGradleDaemonLogsRemoved() {
-        val provider = GradleCacheCleanerProvider()
+        val timeService = SystemTimeService()
+        val provider = GradleCacheCleanerProvider(timeService)
         val daemonLogs = File("${System.getProperty("user.home")}/.gradle/daemon")
+        File(daemonLogs, "2.5/ancient.out.log").setLastModified(timeService.now() - TimeUnit.DAYS.toMillis(42))
+
         provider.registerDirectoryCleaners(context, registry)
+
         assertThat(registryMap).containsKey(File(daemonLogs, "2.5/test.out.log"))
         assertThat(registryMap).containsKey(File(daemonLogs, "2.6/test.out.log"))
         assertThat(registryMap).doesNotContainKey(File(daemonLogs, "2.6/other.txt"))
+        // registered for ancient.out.log
+        assertThat(registryMap).containsKey(File(daemonLogs, "2.5"))
+
+        registryMap.values.forEach { it.run() }
+
+        assertThat(File(daemonLogs,"2.6/other.txt")).exists()
+        assertThat(File(daemonLogs,"2.6")).exists()
+        assertThat(File(daemonLogs,"2.5")).doesNotExist()
     }
 
     @Test
