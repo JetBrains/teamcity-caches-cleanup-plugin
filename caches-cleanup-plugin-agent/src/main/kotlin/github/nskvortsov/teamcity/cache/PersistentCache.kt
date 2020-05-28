@@ -47,17 +47,24 @@ class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycl
                 // Ensure it's possible to download artifact dependencies into persistent cache
                 // Restrictor introduced in TeamCity 2018.1
                 configuration.addConfigurationParameter(ArtifactRestrictorWhitelistProperty,
-                        configuration.configurationParameters.getOrDefault(ArtifactRestrictorWhitelistProperty, "")
+                        configuration.configurationParameters.getOrDefaultCustom(ArtifactRestrictorWhitelistProperty, "")
                                 + ";%agent.persistent.cache%")
             }
         })
     }
 
     override fun registerDirectoryCleaners(context: DirectoryCleanersProviderContext, registry: DirectoryCleanersRegistry) {
-        cacheDirectory.listFiles().forEach {
+        cacheDirectory.listFiles()?.forEach {
             registry.addCleaner(it, Date(it.lastModified()))
         }
     }
 
     override fun getCleanerName() = "Persistent agent cache cleaner"
+}
+
+private fun <K,V> MutableMap<K,V>.getOrDefaultCustom(key: Any?, defaultValue: V?): V? {
+    val v = get(key)
+    if (v != null) return v
+    if (containsKey(key)) return null
+    return defaultValue
 }
