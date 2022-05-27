@@ -164,12 +164,6 @@ fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
 class Cleaner(private val dir: File, private val log: Logger) : Runnable {
     override fun run() {
         log.debug("Removing ${dir.absolutePath}")
-        val dirOld = File("$dir.old")
-        val movedSuccessfully = FileUtil.moveDirWithContent(dir, dirOld,
-                { log.info("Failed to rename to ${dirOld.name}: $it") })
-        if (movedSuccessfully) {
-            log.debug("Rename successful, deleting ${dirOld.name}")
-            FileUtil.delete(dirOld)
-        }
+        FileUtil.delete(dir)
     }
 }
