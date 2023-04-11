@@ -161,9 +161,19 @@ fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     return strValue?.equals("false", ignoreCase = true) ?: false
 }
 
-class Cleaner(private val dir: File, private val log: Logger) : Runnable {
+class Cleaner(private val dir: File, private val log: Logger, private val removeRoots: Boolean) : Runnable {
+
+    constructor(dir: File, log: Logger) : this(dir, log, true)
+
     override fun run() {
         log.debug("Removing ${dir.absolutePath}")
-        FileUtil.delete(dir)
+        if (removeRoots) {
+            FileUtil.delete(dir)
+        } else {
+            val files = dir.listFiles() ?: return
+            for (file in files) {
+                FileUtil.delete(file)
+            }
+        }
     }
 }

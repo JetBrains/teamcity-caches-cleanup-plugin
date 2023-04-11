@@ -28,6 +28,7 @@ class ConfigurableCachesCleanerProvider : DirectoryCleanersProvider {
         val log: Logger = Logger.getLogger(ConfigurableCachesCleanerProvider::class.java)
 
         const val DIRECTORIES_PROPERTY = "teamcity.cleaners.configurable.directories"
+        const val REMOVE_ROOTS = "teamcity.internal.cleaners.configurable.removeCachesRoots"
         const val ENABLED_PROPERTY = "teamcity.cleaners.configurable.enabled"
     }
 
@@ -50,12 +51,14 @@ class ConfigurableCachesCleanerProvider : DirectoryCleanersProvider {
 
         log.debug("Configurable cleaner: dirs to cleanup: $candidates")
 
+        val shouldRemoveRoots = context.runningBuild.sharedConfigParameters[REMOVE_ROOTS] ?: "true"
+
         for (path in candidates) {
             val dir = File(replaceHomeDir(path, home))
             log.debug("Checking if '$path' exists")
             if (dir.exists() && dir.isDirectory) {
                 log.debug("Found '$path', registering cleaner.")
-                registry.addCleaner(dir, Date(), Cleaner(dir, log))
+                registry.addCleaner(dir, Date(), Cleaner(dir, log, shouldRemoveRoots.toBoolean()))
             }
         }
     }
