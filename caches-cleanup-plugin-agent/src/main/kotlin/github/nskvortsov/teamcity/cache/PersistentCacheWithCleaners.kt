@@ -1,8 +1,7 @@
-
-
 package github.nskvortsov.teamcity.cache
 
 import jetbrains.buildServer.agent.*
+import jetbrains.buildServer.parameters.ReferencesResolverUtil
 import jetbrains.buildServer.util.EventDispatcher
 import jetbrains.buildServer.util.FileUtil
 import java.io.File
@@ -18,22 +17,27 @@ class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycl
 
     companion object {
         private const val ArtifactRestrictorWhitelistProperty = "teamcity.artifactDependenciesResolution.whiteList"
+        private const val WhitelistSeparator = ","
+        private const val PersistentCacheParamName = "agent.persistent.cache"
     }
 
     init {
-        agentDispatcher.addListener(object: AgentLifeCycleAdapter() {
+        agentDispatcher.addListener(object : AgentLifeCycleAdapter() {
             override fun agentInitialized(agent: BuildAgent) {
                 val configuration = agent.configuration
 
                 cacheDirectory = configuration.getCacheDirectory(".persistent_cache")
                 FileUtil.createDir(cacheDirectory)
 
-                configuration.addSystemProperty("agent.persistent.cache", cacheDirectory.absolutePath)
+                configuration.addSystemProperty(PersistentCacheParamName, cacheDirectory.absolutePath)
                 // Ensure it's possible to download artifact dependencies into persistent cache
                 // Restrictor introduced in TeamCity 2018.1
-                configuration.addConfigurationParameter(ArtifactRestrictorWhitelistProperty,
-                        configuration.configurationParameters.getOrDefaultCustom(ArtifactRestrictorWhitelistProperty, "")
-                                + ";%agent.persistent.cache%")
+                val persistentCacheParamReference = ReferencesResolverUtil.makeReference(PersistentCacheParamName)
+                var whiteList = configuration.configurationParameters[ArtifactRestrictorWhitelistProperty]
+                whiteList = if (whiteList.isNullOrBlank())
+                    persistentCacheParamReference else
+                    listOf(whiteList.trim(), persistentCacheParamReference).joinToString(WhitelistSeparator)
+                configuration.addConfigurationParameter(ArtifactRestrictorWhitelistProperty, whiteList)
             }
         })
     }
@@ -45,11 +49,4 @@ class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycl
     }
 
     override fun getCleanerName() = "Persistent agent cache cleaner"
-}
-
-private fun <K,V> MutableMap<K,V>.getOrDefaultCustom(key: Any?, defaultValue: V?): V? {
-    val v = get(key)
-    if (v != null) return v
-    if (containsKey(key)) return null
-    return defaultValue
 }
