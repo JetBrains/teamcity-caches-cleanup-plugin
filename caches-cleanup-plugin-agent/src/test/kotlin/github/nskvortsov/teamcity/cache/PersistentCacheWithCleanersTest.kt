@@ -51,7 +51,7 @@ class PersistentCacheWithCleanersTest {
     }
 
     @DataProvider
-    fun whiteListTestData() = arrayOf(
+    fun allowedListTestData() = arrayOf(
         arrayOf("some/path", "some/path,%agent.persistent.cache%"),
         arrayOf("D:\\some\\path", "D:\\some\\path,%agent.persistent.cache%"),
         arrayOf("", "%agent.persistent.cache%"),
@@ -60,14 +60,14 @@ class PersistentCacheWithCleanersTest {
         arrayOf(null, "%agent.persistent.cache%")
     )
 
-    @Test(dataProvider = "whiteListTestData")
-    fun `should make preparations when agent initialized`(whiteList: String?, updatedWhiteList: String) {
+    @Test(dataProvider = "allowedListTestData")
+    fun `should make preparations when agent initialized`(allowedList: String?, updatedAllowedList: String) {
         // arrange
         PersistentCacheWithCleaners(agentDispatcherMock)
         val cacheDir = File(tempDir, "cacheDir")
         `when`(agentConfigurationMock.getCacheDirectory(any())).thenAnswer { cacheDir }
-        val whitelistProperty = "teamcity.artifactDependenciesResolution.whiteList"
-        val parameters = if (whiteList == null) mapOf() else mapOf(whitelistProperty to whiteList)
+        val allowedListProperty = "teamcity.artifactDependenciesResolution.allowedList"
+        val parameters = if (allowedList == null) mapOf() else mapOf(allowedListProperty to allowedList)
         `when`(agentConfigurationMock.configurationParameters).thenAnswer { parameters }
 
         // act
@@ -77,6 +77,6 @@ class PersistentCacheWithCleanersTest {
         assertThat(cacheDir).exists()
         verify(agentConfigurationMock).addSystemProperty("agent.persistent.cache", cacheDir.absolutePath)
         verify(agentConfigurationMock).configurationParameters
-        verify(agentConfigurationMock).addConfigurationParameter(whitelistProperty, updatedWhiteList)
+        verify(agentConfigurationMock).addConfigurationParameter(allowedListProperty, updatedAllowedList)
     }
 }
