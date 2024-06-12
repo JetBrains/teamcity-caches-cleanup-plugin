@@ -16,8 +16,8 @@ class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycl
     lateinit var cacheDirectory: File
 
     companion object {
-        private const val ArtifactRestrictorWhitelistProperty = "teamcity.artifactDependenciesResolution.whiteList"
-        private const val WhitelistSeparator = ","
+        private const val ArtifactRestrictorAllowedListProperty = "teamcity.artifactDependenciesResolution.allowedList"
+        private const val AllowedListSeparator = ","
         private const val PersistentCacheParamName = "agent.persistent.cache"
     }
 
@@ -33,11 +33,11 @@ class PersistentCacheWithCleaners(agentDispatcher: EventDispatcher<AgentLifeCycl
                 // Ensure it's possible to download artifact dependencies into persistent cache
                 // Restrictor introduced in TeamCity 2018.1
                 val persistentCacheParamReference = ReferencesResolverUtil.makeReference(PersistentCacheParamName)
-                var whiteList = configuration.configurationParameters[ArtifactRestrictorWhitelistProperty]
-                whiteList = if (whiteList.isNullOrBlank())
+                var allowedList = configuration.configurationParameters[ArtifactRestrictorAllowedListProperty]
+                allowedList = if (allowedList.isNullOrBlank())
                     persistentCacheParamReference else
-                    listOf(whiteList.trim(), persistentCacheParamReference).joinToString(WhitelistSeparator)
-                configuration.addConfigurationParameter(ArtifactRestrictorWhitelistProperty, whiteList)
+                    listOf(allowedList.trim(), persistentCacheParamReference).joinToString(AllowedListSeparator)
+                configuration.addConfigurationParameter(ArtifactRestrictorAllowedListProperty, allowedList)
             }
         })
     }
