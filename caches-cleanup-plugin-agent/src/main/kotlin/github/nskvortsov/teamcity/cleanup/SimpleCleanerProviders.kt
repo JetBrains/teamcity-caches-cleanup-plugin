@@ -47,57 +47,64 @@ class GradleCacheCleanerProvider(private val TimeService: TimeService) : Directo
             log.info("Gradle cleaner is disabled, skipping")
             return
         }
+        System.getProperty("GRADLE_USER_HOME")?.let {
+            cleanGradleDir(it + "/", registry)
+        }
         System.getProperty("user.home")?.let {
-            val gradleCache = File(it + "/.gradle/caches")
-            log.debug("Checking if [${gradleCache.absolutePath}] exists")
-            if (gradleCache.exists()) {
-                log.debug("Gradle cache found, registering cleaner.")
-                registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
-            }
-
-            val wrapperCache = File(it + "/.gradle/wrapper/dists")
-            log.debug("Checking if [${wrapperCache.absolutePath}] exists")
-            if (wrapperCache.exists()) {
-                log.debug("Gradle wrapper distributions found, registering cleaner.")
-                registry.addCleaner(wrapperCache, Date(), Cleaner(wrapperCache, log))
-            }
-
-            val daemonLogs = File(it + "/.gradle/daemon")
-            log.debug("Looking for Gradle daemon logs.")
-            var count = 0
-
-            val now = TimeService.now()
-
-            (daemonLogs.listFiles() ?: emptyArray()).filter { dir -> dir.isDirectory }.forEach { dir ->
-                val isLogFile: (File) -> Boolean = { file -> file.name.endsWith("out.log") }
-                val logs = (dir.listFiles() ?: emptyArray()).filter(isLogFile)
-
-                // Let's split logs and register several cleaners:
-                //  * older than 7 days
-                //  * older than 1 day
-                //  * older than 12 hours
-                //  * each one else as separate cleaner
-                val groups = splitLogFiles(logs, now)
-
-                @Suppress("NAME_SHADOWING")
-                for ((type, logs) in groups.entries) {
-                    if (type == LogAge.FRESH) {
-                        // register each file separately
-                        logs.forEach { log ->
-                            registry.addCleaner(log, Date(log.lastModified()), LogFileCleaner(log, dir))
-                        }
-                    } else {
-                        // register group
-                        registry.addCleaner(dir, Date(now - type.millis), LogGroupCleaner(logs, dir))
-                    }
-                }
-                if (groups.isNotEmpty()) {
-                    count++
-                }
-            }
-            log.debug("Finished, found and registered for cleaning $count daemon directories")
+            cleanGradleDir(it + "/.gradle/", registry)
 
         }
+    }
+
+    private fun cleanGradleDir(gradleHome: String, registry: DirectoryCleanersRegistry) {
+        val gradleCache = File(gradleHome + "caches")
+        log.debug("Checking if [${gradleCache.absolutePath}] exists")
+        if (gradleCache.exists()) {
+            log.debug("Gradle cache found, registering cleaner.")
+            registry.addCleaner(gradleCache, Date(), Cleaner(gradleCache, log))
+        }
+
+        val wrapperCache = File(gradleHome + "wrapper/dists")
+        log.debug("Checking if [${wrapperCache.absolutePath}] exists")
+        if (wrapperCache.exists()) {
+            log.debug("Gradle wrapper distributions found, registering cleaner.")
+            registry.addCleaner(wrapperCache, Date(), Cleaner(wrapperCache, log))
+        }
+
+        val daemonLogs = File(gradleHome + "daemon")
+        log.debug("Looking for Gradle daemon logs.")
+        var count = 0
+
+        val now = TimeService.now()
+
+        (daemonLogs.listFiles() ?: emptyArray()).filter { dir -> dir.isDirectory }.forEach { dir ->
+            val isLogFile: (File) -> Boolean = { file -> file.name.endsWith("out.log") }
+            val logs = (dir.listFiles() ?: emptyArray()).filter(isLogFile)
+
+            // Let's split logs and register several cleaners:
+            //  * older than 7 days
+            //  * older than 1 day
+            //  * older than 12 hours
+            //  * each one else as separate cleaner
+            val groups = splitLogFiles(logs, now)
+
+            @Suppress("NAME_SHADOWING")
+            for ((type, logs) in groups.entries) {
+                if (type == LogAge.FRESH) {
+                    // register each file separately
+                    logs.forEach { log ->
+                        registry.addCleaner(log, Date(log.lastModified()), LogFileCleaner(log, dir))
+                    }
+                } else {
+                    // register group
+                    registry.addCleaner(dir, Date(now - type.millis), LogGroupCleaner(logs, dir))
+                }
+            }
+            if (groups.isNotEmpty()) {
+                count++
+            }
+        }
+        log.debug("Finished, found and registered for cleaning $count daemon directories")
     }
 
     override fun getCleanerName() = "Gradle local cache cleaner"
