@@ -5,6 +5,7 @@ package github.nskvortsov
 import com.intellij.openapi.util.SystemInfo
 import github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
+import github.nskvortsov.teamcity.cleanup.HeapDumpsAtHomeCleanerProvider
 import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
 import github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider
 import jetbrains.buildServer.agent.AgentRunningBuild
@@ -133,5 +134,16 @@ class SimpleCleanerProvidersTest {
         assertThat(registryMap).containsKey(repo)
         registryMap[repo]?.run()
         assertThat(repo).doesNotExist()
+    }
+
+    @Test
+    fun testHeapDumpsAtHomeProvider() {
+        val provider = HeapDumpsAtHomeCleanerProvider()
+        val repo = File("${System.getProperty("user.home")}")
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(repo)
+        registryMap[repo]?.run()
+        assertThat(File(repo, "test.hprof")).doesNotExist()
+        assertThat(repo).exists()
     }
 }
