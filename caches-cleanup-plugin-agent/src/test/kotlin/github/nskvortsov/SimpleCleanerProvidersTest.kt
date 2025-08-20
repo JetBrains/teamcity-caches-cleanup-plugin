@@ -3,11 +3,7 @@
 package github.nskvortsov
 
 import com.intellij.openapi.util.SystemInfo
-import github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.HeapDumpsAtHomeCleanerProvider
-import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider
+import github.nskvortsov.teamcity.cleanup.*
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
@@ -19,7 +15,9 @@ import org.testng.annotations.AfterMethod
 import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
 import java.io.File
-import java.util.*
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributeView
+import java.nio.file.attribute.FileTime
 import java.util.concurrent.TimeUnit
 
 class SimpleCleanerProvidersTest {
@@ -90,6 +88,12 @@ class SimpleCleanerProvidersTest {
         val timeService = SystemTimeService()
         val provider = GradleCacheCleanerProvider(timeService)
         val daemonLogs = File("${System.getProperty("user.home")}/.gradle/daemon")
+        val now = FileTime.fromMillis(timeService.now())
+        Files.walk(daemonLogs.toPath()).forEach {
+            if (Files.isRegularFile(it)) {
+                Files.getFileAttributeView(it, BasicFileAttributeView::class.java).setTimes(now, null, null)
+            }
+        }
         File(daemonLogs, "2.5/ancient.out.log").setLastModified(timeService.now() - TimeUnit.DAYS.toMillis(42))
 
         provider.registerDirectoryCleaners(context, registry)
