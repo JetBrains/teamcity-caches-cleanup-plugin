@@ -3,23 +3,20 @@
 package github.nskvortsov
 
 import com.intellij.openapi.util.SystemInfo
-import github.nskvortsov.teamcity.cleanup.ApacheIvyCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.GradleCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.HeapDumpsAtHomeCleanerProvider
-import github.nskvortsov.teamcity.cleanup.MavenCacheCleanerProvider
-import github.nskvortsov.teamcity.cleanup.NPMCacheCleanerProvider
+import com.intellij.util.ObjectUtils.assertNotNull
+import github.nskvortsov.teamcity.cleanup.*
 import jetbrains.buildServer.agent.AgentRunningBuild
 import jetbrains.buildServer.agent.DirectoryCleanersProviderContext
 import jetbrains.buildServer.agent.DirectoryCleanersRegistry
 import jetbrains.buildServer.util.FileUtil
 import jetbrains.buildServer.util.SystemTimeService
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assume
 import org.mockito.Mockito.*
 import org.testng.annotations.AfterMethod
 import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
 import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SimpleCleanerProvidersTest {
@@ -145,5 +142,17 @@ class SimpleCleanerProvidersTest {
         registryMap[repo]?.run()
         assertThat(File(repo, "test.hprof")).doesNotExist()
         assertThat(repo).exists()
+    }
+
+    @Test
+    fun testSccacheProvider() {
+        Assume.assumeFalse(SystemInfo.isWindows) // we could clean the actual cache directory since it's under LOCALAPPDATA
+        val provider = SccacheCacheCleanerProvider()
+        val repo = SccacheCacheCleanerProvider.getCacheDirectory(System.getProperty("user.home"))?.let(::File)
+        assertNotNull(repo)
+        provider.registerDirectoryCleaners(context, registry)
+        assertThat(registryMap).containsKey(repo)
+        registryMap[repo]?.run()
+        assertThat(repo).doesNotExist()
     }
 }

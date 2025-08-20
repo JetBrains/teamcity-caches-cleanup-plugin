@@ -130,6 +130,9 @@ private class LogGroupCleaner(private val logs: List<File>, private val dir: Fil
         }
     }
 
+    override fun toString(): String {
+        return "LogGroupCleaner(logs=$logs, dir=$dir)"
+    }
 }
 
 private class LogFileCleaner(private val log: File, private val dir: File) : Runnable {
@@ -139,8 +142,11 @@ private class LogFileCleaner(private val log: File, private val dir: File) : Run
             FileUtil.delete(dir)
         }
     }
-}
 
+    override fun toString(): String {
+        return "LogFileCleaner(log=$log, dir=$dir)"
+    }
+}
 
 fun DirectoryCleanersProviderContext.hasExplicitFalse(key: String): Boolean {
     val strValue = runningBuild.sharedConfigParameters[key]
@@ -161,5 +167,9 @@ class Cleaner(private val dir: File, private val log: Logger, private val remove
                 FileUtil.delete(file)
             }
         }
+    }
+
+    override fun toString(): String {
+        return "Cleaner(dir=$dir, log=${log.name}, removeRoots=$removeRoots)"
     }
 }
